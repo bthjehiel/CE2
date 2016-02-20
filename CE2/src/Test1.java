@@ -22,6 +22,7 @@ public class Test1 {
         assertEquals("1. this\n2. those\n3. that\n", CE2.displayTasks());
         assertEquals("all content deleted from test.txt", CE2.clear("test.txt"));
         assertEquals("", CE2.displayTasks());
+        assertEquals("No tasks to delete", CE2.deleteTask("test.txt", "2"));
         //fail("Not yet implemented");
     }
 }

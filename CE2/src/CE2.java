@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 public class CE2 {
     
+    private static final String MESSAGE_NO_TASKS_TO_DELETE = "No tasks to delete";
     private static final int NUMBER_EXIT_PARAMETERS = 1;
     private static final int NUMBER_DELETE_PARAMETERS = 2;
     private static final int NUMBER_CLEAR_PARAMETERS = 1;
@@ -65,39 +66,30 @@ public class CE2 {
         switch(inputs[0]){
         case COMMAND_ADD:
             return addTask(inputs[1], textFile);
-            //break;
             
         case COMMAND_DELETE:
             if(!hasValidNumberOfParameters(inputs, NUMBER_DELETE_PARAMETERS)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
-                //break;
             }
             else{
                 return deleteTask(textFile, inputs[1]);
             }
-            //break;
             
         case COMMAND_DISPLAY:
             if(!hasValidNumberOfParameters(inputs, NUMBER_DISPLAY_PARAMETERS)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
-                //break;
             }
             return displayTasks();
-            //break;
             
         case COMMAND_CLEAR:
             if(!hasValidNumberOfParameters(inputs, NUMBER_CLEAR_PARAMETERS)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
-                //break;
             }
             return clear(textFile);
-            //break;
             
         default:
             return MESSAGE_UNRECOGNISED_COMMAND;
-            //break;
         }
-        //return "";
     }
     
     public static boolean isCommandExit(String[] inputs) {
@@ -137,6 +129,9 @@ public class CE2 {
     
     public static String deleteTask(String textFile, String task) throws IOException {
         int taskNum = getTaskNum(task);
+        if(texts.size()==0){
+            return MESSAGE_NO_TASKS_TO_DELETE;        
+        }
         if(taskNum == PARAM_INVALID_INTEGER){
             return MESSAGE_INVALID_TASK_NUMBER;
         }
