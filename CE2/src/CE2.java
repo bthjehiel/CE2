@@ -4,11 +4,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class CE2 {
     
 
+    private static final String MESSAGE_SORT = "Sorted tasks alphabetically";
     private static final int NUMBER_ADD_PARAMETERS = 2;
     private static final String COMMAND_SORT = "sort";
     private static final int NUMBER_SORT_PARAMETERS = 1;
@@ -104,7 +106,7 @@ public class CE2 {
             if(!hasValidNumberOfParameters(inputs, NUMBER_SORT_PARAMETERS, true)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
-            //sort(textFile);
+            return sort();
         default:
             return MESSAGE_UNRECOGNISED_COMMAND;
         }
@@ -170,7 +172,7 @@ public class CE2 {
         }
         String deletedTask = texts.get(taskNum-1);
         texts.remove(taskNum-1);
-        updateFile();
+        replaceContentsInFile();
         return String.format(MESSAGE_DELETED, textFile, deletedTask);
     }
     
@@ -203,6 +205,12 @@ public class CE2 {
     
     public static String clear()throws IOException{
         texts.clear();
+        clearFile();
+        
+        return String.format(MESSAGE_CLEAR, textFile);
+    }
+
+    public static void clearFile() throws IOException {
         FileWriter fileWriter = new FileWriter(textFile);
         // Always wrap FileWriter in BufferedWriter.
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -211,9 +219,13 @@ public class CE2 {
         
         bufferedWriter.close();
         fileWriter.close();
+    }
+    
+    public static String sort()throws IOException{
+        Collections.sort(texts);
+        replaceContentsInFile();
         
-        
-        return String.format(MESSAGE_CLEAR, textFile);
+        return String.format(MESSAGE_SORT, textFile);
     }
     
     public static void addTaskToFile(String text) throws IOException {
@@ -229,16 +241,22 @@ public class CE2 {
         return;
     }
     
-    public static void updateFile() throws IOException {
+    public static void replaceContentsInFile() throws IOException {
+        clearFile();
+        addListToFile();
+        
+        return;
+    }
+
+    public static void addListToFile() throws IOException {
         FileWriter fileWriter = new FileWriter(textFile, true);
         // Always wrap FileWriter in BufferedWriter.
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         for(int i = 0; i < texts.size(); i++){
             bufferedWriter.write(texts.get(i));
+            bufferedWriter.newLine();
         }
         bufferedWriter.close();
         fileWriter.close();
-        
-        return;
     }
 }
