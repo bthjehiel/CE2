@@ -9,7 +9,6 @@ import java.util.Scanner;
 
 public class CE2 {
     
-
     private static final String SPACE = " ";
     private static final String EMPTY_STRING = "";
     private static final int NUMBER_SORT_PARAMETERS = 1;
@@ -30,9 +29,11 @@ public class CE2 {
     private static final String MESSAGE_DISPLAY = "%1$s. %2$s";
     private static final String MESSAGE_DELETED = "deleted from %1$s: \"%2$s\"";
     private static final String MESSAGE_CLEAR = "all content deleted from %1$s";
-    private static final String MESSAGE_ADDED = "added to %1$s: %2$s";
+    private static final String MESSAGE_ADDED = "added to %1$s: \"%2$s\"";
     private static final String MESSAGE_EXIT = "Terminating textbuddy";
     private static final String MESSAGE_SORT = "Sorted tasks alphabetically";
+    private static final String MESSAGE_EMPTY_FILE = "%1$s is empty";
+    private static final String MESSAGE_NO_TASKS_CONTAINING_KEYWORD = "No Such Tasks found";
     private static final String MESSAGE_WELCOME = "Welcome to TextBuddy. %1$s is ready for use";
     private static final String MESSAGE_INVALID_TASK_NUMBER = "Pls enter a valid task number";
     private static final String MESSAGE_NO_TASKS_TO_DELETE = "No tasks to delete";
@@ -40,7 +41,6 @@ public class CE2 {
     private static String[] userInputs;
     private static ArrayList<String> texts = new ArrayList<String>();
     private static String textFile = "test.txt";
-    
     
     public static void main(String args[]) throws IOException{
         //String textFile == args[0];
@@ -68,7 +68,12 @@ public class CE2 {
         sc.close();
         return;
     }
-
+    
+    public static String[] getUserInput(String rawCommand) {
+        String[] operation = rawCommand.trim().split(SPACE,2);
+        return operation;
+    }
+    
     public static String executeCommand(String rawCommand) throws IOException, FileNotFoundException {
         userInputs = getUserInput(rawCommand);
         String command = userInputs[0];
@@ -128,11 +133,6 @@ public class CE2 {
         return (userInputs[0].equalsIgnoreCase(COMMAND_EXIT)) && (hasValidNumberOfParameters(NUMBER_EXIT_PARAMETERS, true));
     }
 
-    public static String[] getUserInput(String rawCommand) {
-        String[] operation = rawCommand.trim().split(SPACE,2);
-        return operation;
-    }
-
     public static ArrayList<String> initialiseList() throws IOException {
         Scanner fileScanner = new Scanner(new File(textFile));
         while(fileScanner.hasNext()){
@@ -143,9 +143,12 @@ public class CE2 {
         return texts;
     }
     
-    //checks for valid number of parameters in string and 
-    //the boolean split determines if 2nd input parameter is a combination of strings
-    //and does process them as separate strings e.g add this is a combination of strings
+    /**
+     * checks for valid number of parameters in string and 
+     * the boolean split determines if 2nd input parameter is a combination of strings
+     * and does not process them as separate strings e.g add brown bob
+     * "brown bob" is considered as 1 parameter and not 2
+     */
     public static boolean hasValidNumberOfParameters(int numParameters, boolean split){
         if((userInputs.length == 1 && (numParameters == 1))){
             return true;
@@ -205,6 +208,9 @@ public class CE2 {
     }
 
     public static String displayTasks(){
+        if(texts.size() == 0){
+            return String.format(MESSAGE_EMPTY_FILE, textFile);
+        }
         String tasks = "";
         for(int i = 0; i < texts.size(); i++){
             tasks += String.format(MESSAGE_DISPLAY, i+1, texts.get(i));
@@ -216,6 +222,9 @@ public class CE2 {
     }
     
     public static String displayTasks(ArrayList<String> alteredList){
+        if(alteredList.size() == 0){
+            return String.format(MESSAGE_NO_TASKS_CONTAINING_KEYWORD);
+        }
         String tasks = "";
         for(int i = 0; i < alteredList.size(); i++){
             tasks += String.format(MESSAGE_DISPLAY, i+1, alteredList.get(i));
