@@ -10,34 +10,37 @@ import java.util.Scanner;
 public class CE2 {
     
 
-    private static final int NUMBER_SEARCH_PARAMETERS = 2;
-    private static final String COMMAND_SEARCH = "search";
-    private static final String MESSAGE_SORT = "Sorted tasks alphabetically";
-    private static final int NUMBER_ADD_PARAMETERS = 2;
-    private static final String COMMAND_SORT = "sort";
+    private static final String SPACE = " ";
+    private static final String EMPTY_STRING = "";
     private static final int NUMBER_SORT_PARAMETERS = 1;
     private static final int NUMBER_EXIT_PARAMETERS = 1;
     private static final int NUMBER_DELETE_PARAMETERS = 2;
     private static final int NUMBER_CLEAR_PARAMETERS = 1;
     private static final int NUMBER_DISPLAY_PARAMETERS = 1;
-    private static final String SPACE = " ";
-    private static final String EMPTY_STRING = "";
+    private static final int NUMBER_ADD_PARAMETERS = 2;
+    private static final int NUMBER_SEARCH_PARAMETERS = 2;
     private static final int PARAM_INVALID_INTEGER = -1;
     private static final String COMMAND_CLEAR = "clear";
     private static final String COMMAND_DISPLAY = "display";
     private static final String COMMAND_DELETE = "delete";
     private static final String COMMAND_ADD = "add";
+    private static final String COMMAND_SEARCH = "search";
+    private static final String COMMAND_SORT = "sort";
     private static final String COMMAND_EXIT = "exit";
     private static final String MESSAGE_DISPLAY = "%1$s. %2$s";
     private static final String MESSAGE_DELETED = "deleted from %1$s: \"%2$s\"";
     private static final String MESSAGE_CLEAR = "all content deleted from %1$s";
     private static final String MESSAGE_ADDED = "added to %1$s: %2$s";
+    private static final String MESSAGE_EXIT = "Terminating textbuddy";
+    private static final String MESSAGE_SORT = "Sorted tasks alphabetically";
     private static final String MESSAGE_WELCOME = "Welcome to TextBuddy. %1$s is ready for use";
     private static final String MESSAGE_INVALID_TASK_NUMBER = "Pls enter a valid task number";
     private static final String MESSAGE_NO_TASKS_TO_DELETE = "No tasks to delete";
     private static final String MESSAGE_UNRECOGNISED_COMMAND = "Pls enter a valid command";
+    private static String[] userInputs;
     private static ArrayList<String> texts = new ArrayList<String>();
     private static String textFile = "test.txt";
+    
     
     public static void main(String args[]) throws IOException{
         //String textFile == args[0];
@@ -47,14 +50,7 @@ public class CE2 {
         }
         displayMessage(String.format(MESSAGE_WELCOME, textFile));
         startTextBuddy();
-        /*
-        File textFile = new File("test.txt");
-        if(!textFile.exists()){
-            textFile.createNewFile();
-        }*/
         
-        //displayMessage(String.format(MESSAGE_WELCOME, textFile));
-        //startTextBuddy(textFile);
         return;
     }
 
@@ -64,71 +60,76 @@ public class CE2 {
 
     public static void startTextBuddy() throws IOException {
         Scanner sc = new Scanner(System.in);
-        String[] inputs = getUserInput(sc);
-        ArrayList<String> texts = initialiseList();
+        texts = initialiseList();
         
-        while(!isCommandExit(inputs)){ 
-            displayMessage(executeCommand(inputs, texts));
-            inputs = getUserInput(sc);
-        }
+        do{ 
+            displayMessage(executeCommand(sc.nextLine()));
+        }while(!isCommandExit());
         sc.close();
         return;
     }
 
-    public static String executeCommand(String[] inputs, ArrayList<String> texts)
-            throws IOException, FileNotFoundException {
-        switch(inputs[0]){
+    public static String executeCommand(String rawCommand) throws IOException, FileNotFoundException {
+        userInputs = getUserInput(rawCommand);
+        String command = userInputs[0];
+        
+        return determineCommand(command);
+    }
+
+    public static String determineCommand(String command) throws IOException {
+        switch(command){
         case COMMAND_ADD:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_ADD_PARAMETERS, true)){
+            if(!hasValidNumberOfParameters(NUMBER_ADD_PARAMETERS, true)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
-            return addTask(inputs[1]);
+            return addTask();
             
         case COMMAND_DELETE:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_DELETE_PARAMETERS, false)){
+            if(!hasValidNumberOfParameters(NUMBER_DELETE_PARAMETERS, false)){
                 return MESSAGE_INVALID_TASK_NUMBER;
             }
             else{
-                return deleteTask(inputs[1]);
+                return deleteTask();
             }
             
         case COMMAND_DISPLAY:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_DISPLAY_PARAMETERS, false)){
+            if(!hasValidNumberOfParameters(NUMBER_DISPLAY_PARAMETERS, false)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return displayTasks();
             
         case COMMAND_CLEAR:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_CLEAR_PARAMETERS, false)){
+            if(!hasValidNumberOfParameters(NUMBER_CLEAR_PARAMETERS, false)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return clear();
             
         case COMMAND_SORT:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_SORT_PARAMETERS, false)){
+            if(!hasValidNumberOfParameters(NUMBER_SORT_PARAMETERS, false)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return sort();
             
         case COMMAND_SEARCH:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_SEARCH_PARAMETERS, true)){
+            if(!hasValidNumberOfParameters(NUMBER_SEARCH_PARAMETERS, true)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
-            return searchKeyword(inputs[1]);
+            return searchKeyword();
+            
+        case COMMAND_EXIT:
+            return MESSAGE_EXIT;
             
         default:
             return MESSAGE_UNRECOGNISED_COMMAND;
         }
     }
     
-    public static boolean isCommandExit(String[] inputs) {
-        return (inputs[0].equalsIgnoreCase(COMMAND_EXIT)) && (hasValidNumberOfParameters(inputs, NUMBER_EXIT_PARAMETERS, true));
+    public static boolean isCommandExit() {
+        return (userInputs[0].equalsIgnoreCase(COMMAND_EXIT)) && (hasValidNumberOfParameters(NUMBER_EXIT_PARAMETERS, true));
     }
 
-    public static String[] getUserInput(Scanner sc) {
-        String userInput = sc.nextLine();
-        userInput = userInput.trim();
-        String[] operation = userInput.split(SPACE,2);
+    public static String[] getUserInput(String rawCommand) {
+        String[] operation = rawCommand.trim().split(SPACE,2);
         return operation;
     }
 
@@ -145,37 +146,36 @@ public class CE2 {
     //checks for valid number of parameters in string and 
     //the boolean split determines if 2nd input parameter is a combination of strings
     //and does process them as separate strings e.g add this is a combination of strings
-    public static boolean hasValidNumberOfParameters(String[] inputs, int numParameters, boolean split){
-        //System.out.println(inputs.length);
-        
-        if((inputs.length == 1 && (numParameters == 1))){
+    public static boolean hasValidNumberOfParameters(int numParameters, boolean split){
+        if((userInputs.length == 1 && (numParameters == 1))){
             return true;
         }
-        else if((inputs.length == 1) && (numParameters > 1)){
+        else if((userInputs.length == 1) && (numParameters > 1)){
             return false;
         }
         if(!split){
-            String[] splittedString = inputs[1].split(SPACE);
+            String[] splittedString = userInputs[1].split(SPACE);
             if(splittedString.length == numParameters-1){
                 return true;
             }
         }
         else{
-            if(inputs.length==numParameters){
+            if(userInputs.length==numParameters){
                 return true;
             }
         }
         return false;
     }
     
-    public static String addTask(String description) throws IOException {
-        texts.add(new String(description));
-        addTaskToFile(description);
-        return String.format(MESSAGE_ADDED, textFile, description);
+    public static String addTask() throws IOException {
+        String taskDescription = userInputs[1];
+        texts.add(new String(taskDescription));
+        addTaskToFile(taskDescription);
+        return String.format(MESSAGE_ADDED, textFile, taskDescription);
     }
     
-    public static String deleteTask(String task) throws IOException {
-        int taskNum = getTaskNum(task);
+    public static String deleteTask() throws IOException {
+        int taskNum = getTaskNum(userInputs[1]);
         if(texts.size()==0){
             return MESSAGE_NO_TASKS_TO_DELETE;        
         }
@@ -251,7 +251,8 @@ public class CE2 {
         return String.format(MESSAGE_SORT, textFile);
     }
     
-    public static String searchKeyword(String keyword)throws IOException{
+    public static String searchKeyword()throws IOException{
+        String keyword = userInputs[1];
         ArrayList<String> searchedList = getTasksContainingKeyword(keyword);
         displayTasks(searchedList);
         
