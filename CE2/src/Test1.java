@@ -13,7 +13,8 @@ public class Test1 {
         assertEquals("added to test.txt: this", CE2.addTask("this", "test.txt"));
         assertEquals("added to test.txt: that", CE2.addTask("that", "test.txt"));
         assertEquals("added to test.txt: those", CE2.addTask("those", "test.txt"));
-        
+        assertEquals("1. this\n2. that\n3. those\n", CE2.displayTasks());
+
         //fail("Not yet implemented");
     }
 }
