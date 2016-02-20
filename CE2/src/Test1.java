@@ -17,7 +17,11 @@ public class Test1 {
         assertEquals("Pls enter a valid task number", CE2.deleteTask("test.txt", "4"));
         assertEquals("Pls enter a valid task number", CE2.deleteTask("test.txt", "-1"));
         assertEquals("Pls enter a valid task number", CE2.deleteTask("test.txt", "2.3"));
-
+        assertEquals("deleted from test.txt: \"that\"", CE2.deleteTask("test.txt", "2"));
+        assertEquals("added to test.txt: that", CE2.addTask("that", "test.txt"));
+        assertEquals("1. this\n2. those\n3. that\n", CE2.displayTasks());
+        assertEquals("all content deleted from test.txt", CE2.clear("test.txt"));
+        assertEquals("", CE2.displayTasks());
         //fail("Not yet implemented");
     }
 }
