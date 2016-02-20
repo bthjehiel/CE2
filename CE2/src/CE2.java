@@ -44,14 +44,14 @@ public class CE2 {
     
     public static void main(String args[]) throws IOException{
         //String textFile == args[0];
-        createFileIFNotFound();
+        createFileIfNotFound();
         displayMessage(String.format(MESSAGE_WELCOME, textFile));
         startTextBuddy();
         
         return;
     }
 
-    public static void createFileIFNotFound() throws IOException {
+    public static void createFileIfNotFound() throws IOException {
         File myFile = new File(textFile);
         if(!myFile.exists()){
             myFile.createNewFile();
