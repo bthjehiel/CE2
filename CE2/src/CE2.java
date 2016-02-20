@@ -88,45 +88,25 @@ public class CE2 {
     public static String determineCommand(String command) throws IOException {
         switch(command){
         case COMMAND_ADD:
-            if(!hasValidNumberOfParameters(NUMBER_ADD_PARAMETERS, true)){
-                return MESSAGE_UNRECOGNISED_COMMAND;
-            }
             return addTask();
             
         case COMMAND_DELETE:
-            if(!hasValidNumberOfParameters(NUMBER_DELETE_PARAMETERS, false)){
-                return MESSAGE_INVALID_TASK_NUMBER;
-            }
-            else{
                 return deleteTask();
-            }
             
         case COMMAND_DISPLAY:
-            if(!hasValidNumberOfParameters(NUMBER_DISPLAY_PARAMETERS, false)){
-                return MESSAGE_UNRECOGNISED_COMMAND;
-            }
             return displayTasks();
             
         case COMMAND_CLEAR:
-            if(!hasValidNumberOfParameters(NUMBER_CLEAR_PARAMETERS, false)){
-                return MESSAGE_UNRECOGNISED_COMMAND;
-            }
             return clear();
             
         case COMMAND_SORT:
-            if(!hasValidNumberOfParameters(NUMBER_SORT_PARAMETERS, false)){
-                return MESSAGE_UNRECOGNISED_COMMAND;
-            }
             return sort();
             
         case COMMAND_SEARCH:
-            if(!hasValidNumberOfParameters(NUMBER_SEARCH_PARAMETERS, true)){
-                return MESSAGE_UNRECOGNISED_COMMAND;
-            }
             return searchKeyword();
             
         case COMMAND_EXIT:
-            return MESSAGE_EXIT;
+            return exitTextbuddy();
             
         default:
             return MESSAGE_UNRECOGNISED_COMMAND;
@@ -134,7 +114,15 @@ public class CE2 {
     }
     
     public static boolean isCommandExit() {
-        return (userInputs[0].equalsIgnoreCase(COMMAND_EXIT)) && (hasValidNumberOfParameters(NUMBER_EXIT_PARAMETERS, true));
+        return (userInputs[0].equalsIgnoreCase(COMMAND_EXIT)) && (hasValidNumberOfParameters(NUMBER_EXIT_PARAMETERS));
+    }
+    
+    public static String exitTextbuddy() throws IOException {
+        if(!hasValidNumberOfParameters(NUMBER_EXIT_PARAMETERS)){
+            return MESSAGE_UNRECOGNISED_COMMAND;
+        }
+        
+        return MESSAGE_EXIT;
     }
 
     public static ArrayList<String> initialiseList() throws IOException {
@@ -147,41 +135,29 @@ public class CE2 {
         return texts;
     }
     
-    /**
-     * checks for valid number of parameters in string and 
-     * the boolean split determines if 2nd input parameter is a combination of strings
-     * and does not process them as separate strings e.g add brown bob
-     * "brown bob" is considered as 1 parameter and not 2
-     */
-    public static boolean hasValidNumberOfParameters(int numParameters, boolean split){
-        if((userInputs.length == 1 && (numParameters == 1))){
-            return true;
-        }
-        else if((userInputs.length == 1) && (numParameters > 1)){
-            return false;
-        }
-        if(!split){
-            String[] splittedString = userInputs[1].split(SPACE);
-            if(splittedString.length == numParameters-1){
-                return true;
-            }
-        }
-        else{
-            if(userInputs.length==numParameters){
-                return true;
-            }
-        }
-        return false;
+
+    public static boolean hasValidNumberOfParameters(int numParameters){
+        return (userInputs.length==numParameters);
     }
     
     public static String addTask() throws IOException {
+        if(!specifiedDescription()){
+            return MESSAGE_UNRECOGNISED_COMMAND;
+        }
         String taskDescription = userInputs[1];
         texts.add(new String(taskDescription));
         addTaskToFile(taskDescription);
         return String.format(MESSAGE_ADDED, textFile, taskDescription);
     }
     
+    public static boolean specifiedDescription(){
+        return (userInputs.length>1);
+    }
+    
     public static String deleteTask() throws IOException {
+        if(!hasValidNumberOfParameters(NUMBER_DELETE_PARAMETERS)){
+            return MESSAGE_INVALID_TASK_NUMBER;
+        }
         int taskNum = getTaskNum(userInputs[1]);
         if(texts.size()==0){
             return MESSAGE_NO_TASKS_TO_DELETE;        
@@ -212,6 +188,9 @@ public class CE2 {
     }
 
     public static String displayTasks(){
+        if(!hasValidNumberOfParameters(NUMBER_DISPLAY_PARAMETERS)){
+            return MESSAGE_UNRECOGNISED_COMMAND;
+        }
         if(texts.size() == 0){
             return String.format(MESSAGE_EMPTY_FILE, textFile);
         }
@@ -240,6 +219,9 @@ public class CE2 {
     }
     
     public static String clear()throws IOException{
+        if(!hasValidNumberOfParameters(NUMBER_CLEAR_PARAMETERS)){
+            return MESSAGE_UNRECOGNISED_COMMAND;
+        }
         texts.clear();
         clearFile();
         
@@ -258,6 +240,9 @@ public class CE2 {
     }
     
     public static String sort()throws IOException{
+        if(!hasValidNumberOfParameters(NUMBER_SORT_PARAMETERS)){
+            return MESSAGE_UNRECOGNISED_COMMAND;
+        }
         Collections.sort(texts);
         replaceContentsInFile();
         
@@ -265,6 +250,9 @@ public class CE2 {
     }
     
     public static String searchKeyword()throws IOException{
+        if(!hasValidNumberOfParameters(NUMBER_SEARCH_PARAMETERS)){
+            return MESSAGE_UNRECOGNISED_COMMAND;
+        }
         String keyword = userInputs[1];
         ArrayList<String> searchedList = getTasksContainingKeyword(keyword);
         displayTasks(searchedList);

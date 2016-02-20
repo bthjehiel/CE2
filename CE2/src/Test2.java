@@ -9,7 +9,7 @@ public class Test2 {
 
     @Test
     public void test() throws IOException{
-        assertEquals("all content deleted from test.txt", CE2.clear());
+        assertEquals("all content deleted from test.txt", CE2.executeCommand("clear"));
         assertEquals("added to test.txt: \"this\"", CE2.executeCommand("add this"));
         assertEquals("added to test.txt: \"that\"", CE2.executeCommand("add that"));
         assertEquals("added to test.txt: \"those\"", CE2.executeCommand("add those"));
