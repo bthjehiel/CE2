@@ -8,7 +8,9 @@ import java.util.Scanner;
 
 public class CE2 {
     
-    private static final String MESSAGE_NO_TASKS_TO_DELETE = "No tasks to delete";
+
+    private static final String COMMAND_SORT = "sort";
+    private static final int NUMBER_SORT_PARAMETERS = 1;
     private static final int NUMBER_EXIT_PARAMETERS = 1;
     private static final int NUMBER_DELETE_PARAMETERS = 2;
     private static final int NUMBER_CLEAR_PARAMETERS = 1;
@@ -27,19 +29,22 @@ public class CE2 {
     private static final String MESSAGE_ADDED = "added to %1$s: %2$s";
     private static final String MESSAGE_WELCOME = "Welcome to TextBuddy. %1$s is ready for use";
     private static final String MESSAGE_INVALID_TASK_NUMBER = "Pls enter a valid task number";
+    private static final String MESSAGE_NO_TASKS_TO_DELETE = "No tasks to delete";
     private static final String MESSAGE_UNRECOGNISED_COMMAND = "Pls enter a valid command";
     private static ArrayList<String> texts = new ArrayList<String>();
+    private static String textFile = "test.txt";
     
     public static void main(String args[]) throws IOException{
-        displayMessage(String.format(MESSAGE_WELCOME, "test.txt"));
-        startTextBuddy("test.txt");
+        displayMessage(String.format(MESSAGE_WELCOME, textFile));
+        startTextBuddy();
         /*
         File textFile = new File("test.txt");
         if(!textFile.exists()){
             textFile.createNewFile();
         }*/
-        //displayMessage(String.format(MESSAGE_WELCOME, args[0]));
-        //startTextBuddy(args[0]);
+        //textFile == args[0];
+        //displayMessage(String.format(MESSAGE_WELCOME, textFile));
+        //startTextBuddy(textFile);
         return;
     }
 
@@ -47,32 +52,32 @@ public class CE2 {
         System.out.println(message);
     }
 
-    public static void startTextBuddy(String textFile) throws IOException {
+    public static void startTextBuddy() throws IOException {
         Scanner sc = new Scanner(System.in);
         String[] inputs = getUserInput(sc);
-        ArrayList<String> texts = initialiseList(textFile);
+        ArrayList<String> texts = initialiseList();
         
         while(!isCommandExit(inputs)){
         //while(isCommandExit(inputs)){   
-            displayMessage(executeCommand(textFile, inputs, texts));
+            displayMessage(executeCommand(inputs, texts));
             inputs = getUserInput(sc);
         }
         sc.close();
         return;
     }
 
-    public static String executeCommand(String textFile, String[] inputs, ArrayList<String> texts)
+    public static String executeCommand(String[] inputs, ArrayList<String> texts)
             throws IOException, FileNotFoundException {
         switch(inputs[0]){
         case COMMAND_ADD:
-            return addTask(inputs[1], textFile);
+            return addTask(inputs[1]);
             
         case COMMAND_DELETE:
             if(!hasValidNumberOfParameters(inputs, NUMBER_DELETE_PARAMETERS)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             else{
-                return deleteTask(textFile, inputs[1]);
+                return deleteTask(inputs[1]);
             }
             
         case COMMAND_DISPLAY:
@@ -85,8 +90,13 @@ public class CE2 {
             if(!hasValidNumberOfParameters(inputs, NUMBER_CLEAR_PARAMETERS)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
-            return clear(textFile);
+            return clear();
             
+        case COMMAND_SORT:
+            if(!hasValidNumberOfParameters(inputs, NUMBER_SORT_PARAMETERS)){
+                return MESSAGE_UNRECOGNISED_COMMAND;
+            }
+            //sort(textFile);
         default:
             return MESSAGE_UNRECOGNISED_COMMAND;
         }
@@ -102,7 +112,7 @@ public class CE2 {
         return operation;
     }
 
-    public static ArrayList<String> initialiseList(String textFile) throws IOException {
+    public static ArrayList<String> initialiseList() throws IOException {
         Scanner fileScanner = new Scanner(new File(textFile));
         while(fileScanner.hasNext()){
                 texts.add(fileScanner.nextLine());
@@ -119,15 +129,15 @@ public class CE2 {
         return false;
     }
     
-    public static String addTask(String description, String textFile) throws IOException {
+    public static String addTask(String description) throws IOException {
         texts.add(new String(description));
-        addTaskToFile(textFile, description);
+        addTaskToFile(description);
         //String message = ;
         //System.out.println(message);
         return String.format(MESSAGE_ADDED, textFile, description);
     }
     
-    public static String deleteTask(String textFile, String task) throws IOException {
+    public static String deleteTask(String task) throws IOException {
         int taskNum = getTaskNum(task);
         if(texts.size()==0){
             return MESSAGE_NO_TASKS_TO_DELETE;        
@@ -138,7 +148,7 @@ public class CE2 {
         String deletedTask = texts.get(taskNum-1);
         texts.remove(taskNum-1);
         //displayMessage(String.format(MESSAGE_DELETED, textFile, deletedTask));
-        updateFile(textFile);
+        updateFile();
         return String.format(MESSAGE_DELETED, textFile, deletedTask);
     }
     
@@ -171,7 +181,7 @@ public class CE2 {
         return allTasks;
     }
     
-    public static String clear(String textFile)throws IOException{
+    public static String clear()throws IOException{
         texts.clear();
         FileWriter fileWriter = new FileWriter(textFile);
         // Always wrap FileWriter in BufferedWriter.
@@ -186,7 +196,7 @@ public class CE2 {
         return String.format(MESSAGE_CLEAR, textFile);
     }
     
-    public static void addTaskToFile(String textFile, String text) throws IOException {
+    public static void addTaskToFile(String text) throws IOException {
         FileWriter fileWriter = new FileWriter(textFile, true);
         // Always wrap FileWriter in BufferedWriter.
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -200,7 +210,7 @@ public class CE2 {
     }
     
     //Saves new list into the file
-    public static void updateFile(String textFile) throws IOException {
+    public static void updateFile() throws IOException {
         FileWriter fileWriter = new FileWriter(textFile, true);
         // Always wrap FileWriter in BufferedWriter.
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
