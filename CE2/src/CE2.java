@@ -10,6 +10,8 @@ import java.util.Scanner;
 public class CE2 {
     
 
+    private static final int NUMBER_SEARCH_PARAMETERS = 2;
+    private static final String COMMAND_SEARCH = "search";
     private static final String MESSAGE_SORT = "Sorted tasks alphabetically";
     private static final int NUMBER_ADD_PARAMETERS = 2;
     private static final String COMMAND_SORT = "sort";
@@ -77,13 +79,13 @@ public class CE2 {
             throws IOException, FileNotFoundException {
         switch(inputs[0]){
         case COMMAND_ADD:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_ADD_PARAMETERS, false)){
+            if(!hasValidNumberOfParameters(inputs, NUMBER_ADD_PARAMETERS, true)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return addTask(inputs[1]);
             
         case COMMAND_DELETE:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_DELETE_PARAMETERS, true)){
+            if(!hasValidNumberOfParameters(inputs, NUMBER_DELETE_PARAMETERS, false)){
                 return MESSAGE_INVALID_TASK_NUMBER;
             }
             else{
@@ -91,22 +93,29 @@ public class CE2 {
             }
             
         case COMMAND_DISPLAY:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_DISPLAY_PARAMETERS, true)){
+            if(!hasValidNumberOfParameters(inputs, NUMBER_DISPLAY_PARAMETERS, false)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return displayTasks();
             
         case COMMAND_CLEAR:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_CLEAR_PARAMETERS, true)){
+            if(!hasValidNumberOfParameters(inputs, NUMBER_CLEAR_PARAMETERS, false)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return clear();
             
         case COMMAND_SORT:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_SORT_PARAMETERS, true)){
+            if(!hasValidNumberOfParameters(inputs, NUMBER_SORT_PARAMETERS, false)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return sort();
+            
+        case COMMAND_SEARCH:
+            if(!hasValidNumberOfParameters(inputs, NUMBER_SEARCH_PARAMETERS, true)){
+                return MESSAGE_UNRECOGNISED_COMMAND;
+            }
+            return searchKeyword(inputs[1]);
+            
         default:
             return MESSAGE_UNRECOGNISED_COMMAND;
         }
@@ -133,6 +142,9 @@ public class CE2 {
         return texts;
     }
     
+    //checks for valid number of parameters in string and 
+    //the boolean split determines if 2nd input parameter is a combination of strings
+    //and does process them as separate strings e.g add this is a combination of strings
     public static boolean hasValidNumberOfParameters(String[] inputs, int numParameters, boolean split){
         //System.out.println(inputs.length);
         
@@ -142,7 +154,7 @@ public class CE2 {
         else if((inputs.length == 1) && (numParameters > 1)){
             return false;
         }
-        if(split){
+        if(!split){
             String[] splittedString = inputs[1].split(SPACE);
             if(splittedString.length == numParameters-1){
                 return true;
@@ -193,14 +205,25 @@ public class CE2 {
     }
 
     public static String displayTasks(){
-        String allTasks = "";
+        String tasks = "";
         for(int i = 0; i < texts.size(); i++){
-            allTasks += String.format(MESSAGE_DISPLAY, i+1, texts.get(i));
+            tasks += String.format(MESSAGE_DISPLAY, i+1, texts.get(i));
             if(i!=texts.size()-1){
-                allTasks += "\n";
+                tasks += "\n";
             }
         }
-        return allTasks;
+        return tasks;
+    }
+    
+    public static String displayTasks(ArrayList<String> alteredList){
+        String tasks = "";
+        for(int i = 0; i < alteredList.size(); i++){
+            tasks += String.format(MESSAGE_DISPLAY, i+1, alteredList.get(i));
+            if(i!=alteredList.size()-1){
+                tasks += "\n";
+            }
+        }
+        return tasks;
     }
     
     public static String clear()throws IOException{
@@ -226,6 +249,22 @@ public class CE2 {
         replaceContentsInFile();
         
         return String.format(MESSAGE_SORT, textFile);
+    }
+    
+    public static String searchKeyword(String keyword)throws IOException{
+        ArrayList<String> searchedList = getTasksContainingKeyword(keyword);
+        displayTasks(searchedList);
+        
+        return displayTasks(searchedList);
+    }
+
+    public static ArrayList<String> getTasksContainingKeyword(String keyword) {
+        ArrayList<String> searchedList = new ArrayList<String>();
+        for(int i =0; i< texts.size(); i++){
+            if(texts.get(i).contains(keyword))
+                searchedList.add(texts.get(i));
+        }
+        return searchedList;
     }
     
     public static void addTaskToFile(String text) throws IOException {
