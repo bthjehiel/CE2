@@ -9,6 +9,7 @@ import java.util.Scanner;
 public class CE2 {
     
 
+    private static final int NUMBER_ADD_PARAMETERS = 2;
     private static final String COMMAND_SORT = "sort";
     private static final int NUMBER_SORT_PARAMETERS = 1;
     private static final int NUMBER_EXIT_PARAMETERS = 1;
@@ -35,6 +36,11 @@ public class CE2 {
     private static String textFile = "test.txt";
     
     public static void main(String args[]) throws IOException{
+        //String textFile == args[0];
+        File myFile = new File(textFile);
+        if(!myFile.exists()){
+            myFile.createNewFile();
+        }
         displayMessage(String.format(MESSAGE_WELCOME, textFile));
         startTextBuddy();
         /*
@@ -42,7 +48,7 @@ public class CE2 {
         if(!textFile.exists()){
             textFile.createNewFile();
         }*/
-        //textFile == args[0];
+        
         //displayMessage(String.format(MESSAGE_WELCOME, textFile));
         //startTextBuddy(textFile);
         return;
@@ -57,8 +63,7 @@ public class CE2 {
         String[] inputs = getUserInput(sc);
         ArrayList<String> texts = initialiseList();
         
-        while(!isCommandExit(inputs)){
-        //while(isCommandExit(inputs)){   
+        while(!isCommandExit(inputs)){ 
             displayMessage(executeCommand(inputs, texts));
             inputs = getUserInput(sc);
         }
@@ -70,30 +75,33 @@ public class CE2 {
             throws IOException, FileNotFoundException {
         switch(inputs[0]){
         case COMMAND_ADD:
+            if(!hasValidNumberOfParameters(inputs, NUMBER_ADD_PARAMETERS, false)){
+                return MESSAGE_UNRECOGNISED_COMMAND;
+            }
             return addTask(inputs[1]);
             
         case COMMAND_DELETE:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_DELETE_PARAMETERS)){
-                return MESSAGE_UNRECOGNISED_COMMAND;
+            if(!hasValidNumberOfParameters(inputs, NUMBER_DELETE_PARAMETERS, true)){
+                return MESSAGE_INVALID_TASK_NUMBER;
             }
             else{
                 return deleteTask(inputs[1]);
             }
             
         case COMMAND_DISPLAY:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_DISPLAY_PARAMETERS)){
+            if(!hasValidNumberOfParameters(inputs, NUMBER_DISPLAY_PARAMETERS, true)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return displayTasks();
             
         case COMMAND_CLEAR:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_CLEAR_PARAMETERS)){
+            if(!hasValidNumberOfParameters(inputs, NUMBER_CLEAR_PARAMETERS, true)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             return clear();
             
         case COMMAND_SORT:
-            if(!hasValidNumberOfParameters(inputs, NUMBER_SORT_PARAMETERS)){
+            if(!hasValidNumberOfParameters(inputs, NUMBER_SORT_PARAMETERS, true)){
                 return MESSAGE_UNRECOGNISED_COMMAND;
             }
             //sort(textFile);
@@ -103,12 +111,13 @@ public class CE2 {
     }
     
     public static boolean isCommandExit(String[] inputs) {
-        return (inputs[0].equalsIgnoreCase(COMMAND_EXIT)) && (hasValidNumberOfParameters(inputs, NUMBER_EXIT_PARAMETERS));
+        return (inputs[0].equalsIgnoreCase(COMMAND_EXIT)) && (hasValidNumberOfParameters(inputs, NUMBER_EXIT_PARAMETERS, true));
     }
 
     public static String[] getUserInput(Scanner sc) {
         String userInput = sc.nextLine();
-        String[] operation = userInput.split(SPACE);
+        userInput = userInput.trim();
+        String[] operation = userInput.split(SPACE,2);
         return operation;
     }
 
@@ -122,9 +131,25 @@ public class CE2 {
         return texts;
     }
     
-    public static boolean hasValidNumberOfParameters(String[] inputs, int numParameters){
-        if(inputs.length == numParameters){
+    public static boolean hasValidNumberOfParameters(String[] inputs, int numParameters, boolean split){
+        //System.out.println(inputs.length);
+        
+        if((inputs.length == 1 && (numParameters == 1))){
             return true;
+        }
+        else if((inputs.length == 1) && (numParameters > 1)){
+            return false;
+        }
+        if(split){
+            String[] splittedString = inputs[1].split(SPACE);
+            if(splittedString.length == numParameters-1){
+                return true;
+            }
+        }
+        else{
+            if(inputs.length==numParameters){
+                return true;
+            }
         }
         return false;
     }
@@ -132,8 +157,6 @@ public class CE2 {
     public static String addTask(String description) throws IOException {
         texts.add(new String(description));
         addTaskToFile(description);
-        //String message = ;
-        //System.out.println(message);
         return String.format(MESSAGE_ADDED, textFile, description);
     }
     
@@ -147,7 +170,6 @@ public class CE2 {
         }
         String deletedTask = texts.get(taskNum-1);
         texts.remove(taskNum-1);
-        //displayMessage(String.format(MESSAGE_DELETED, textFile, deletedTask));
         updateFile();
         return String.format(MESSAGE_DELETED, textFile, deletedTask);
     }
@@ -158,13 +180,10 @@ public class CE2 {
             taskNum = Integer.parseInt(taskNumber);
         }
         catch(Exception e){
-            //System.out.println(MESSAGE_INVALID_TASK_NUMBER);
             return PARAM_INVALID_INTEGER;
         }
         
         if((taskNum>texts.size()) || (taskNum<1)){
-            //System.out.println(texts.size());
-            //System.out.println(MESSAGE_INVALID_TASK_NUMBER);
             return PARAM_INVALID_INTEGER;
         }
         
@@ -174,9 +193,10 @@ public class CE2 {
     public static String displayTasks(){
         String allTasks = "";
         for(int i = 0; i < texts.size(); i++){
-            allTasks += String.format(MESSAGE_DISPLAY, i+1, texts.get(i)) +"\n";
-            
-            //System.out.println(String.format(MESSAGE_DISPLAY, i+1, texts.get(i)));;
+            allTasks += String.format(MESSAGE_DISPLAY, i+1, texts.get(i));
+            if(i!=texts.size()-1){
+                allTasks += "\n";
+            }
         }
         return allTasks;
     }
@@ -209,7 +229,6 @@ public class CE2 {
         return;
     }
     
-    //Saves new list into the file
     public static void updateFile() throws IOException {
         FileWriter fileWriter = new FileWriter(textFile, true);
         // Always wrap FileWriter in BufferedWriter.
