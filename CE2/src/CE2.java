@@ -1,6 +1,5 @@
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.Scanner;
 
 public class CE2 {
     
+    private static final String NEW_LINE = "\n";
     private static final String SPACE = " ";
     private static final String EMPTY_STRING = "";
     private static final int NUMBER_SORT_PARAMETERS = 1;
@@ -16,7 +16,6 @@ public class CE2 {
     private static final int NUMBER_DELETE_PARAMETERS = 2;
     private static final int NUMBER_CLEAR_PARAMETERS = 1;
     private static final int NUMBER_DISPLAY_PARAMETERS = 1;
-    private static final int NUMBER_ADD_PARAMETERS = 2;
     private static final int NUMBER_SEARCH_PARAMETERS = 2;
     private static final int PARAM_INVALID_INTEGER = -1;
     private static final String COMMAND_CLEAR = "clear";
@@ -40,10 +39,10 @@ public class CE2 {
     private static final String MESSAGE_UNRECOGNISED_COMMAND = "Pls enter a valid command";
     private static String[] userInputs;
     private static ArrayList<String> texts = new ArrayList<String>();
-    private static String textFile = "test.txt";
+    private static String textFile;
     
     public static void main(String args[]) throws IOException{
-        //String textFile == args[0];
+        textFile = args[0];
         createFileIfNotFound();
         displayMessage(String.format(MESSAGE_WELCOME, textFile));
         startTextBuddy();
@@ -78,7 +77,7 @@ public class CE2 {
         return operation;
     }
     
-    public static String executeCommand(String rawCommand) throws IOException, FileNotFoundException {
+    public static String executeCommand(String rawCommand) throws IOException{
         userInputs = getUserInput(rawCommand);
         String command = userInputs[0];
         
@@ -91,7 +90,7 @@ public class CE2 {
             return addTask();
             
         case COMMAND_DELETE:
-                return deleteTask();
+            return deleteTask();
             
         case COMMAND_DISPLAY:
             return displayTasks();
@@ -194,11 +193,11 @@ public class CE2 {
         if(texts.size() == 0){
             return String.format(MESSAGE_EMPTY_FILE, textFile);
         }
-        String tasks = "";
+        String tasks = EMPTY_STRING;
         for(int i = 0; i < texts.size(); i++){
             tasks += String.format(MESSAGE_DISPLAY, i+1, texts.get(i));
             if(i!=texts.size()-1){
-                tasks += "\n";
+                tasks += NEW_LINE;
             }
         }
         return tasks;
@@ -208,11 +207,11 @@ public class CE2 {
         if(alteredList.size() == 0){
             return String.format(MESSAGE_NO_TASKS_CONTAINING_KEYWORD);
         }
-        String tasks = "";
+        String tasks = EMPTY_STRING;
         for(int i = 0; i < alteredList.size(); i++){
             tasks += String.format(MESSAGE_DISPLAY, i+1, alteredList.get(i));
             if(i!=alteredList.size()-1){
-                tasks += "\n";
+                tasks += NEW_LINE;
             }
         }
         return tasks;
