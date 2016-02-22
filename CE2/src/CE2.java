@@ -39,10 +39,10 @@ public class CE2 {
     private static final String MESSAGE_UNRECOGNISED_COMMAND = "Pls enter a valid command";
     private static String[] userInputs;
     private static ArrayList<String> texts = new ArrayList<String>();
-    private static String textFile;
+    private static String textFile = "test.txt";
     
     public static void main(String args[]) throws IOException{
-        textFile = args[0];
+        //textFile = args[0];
         createFileIfNotFound();
         displayMessage(String.format(MESSAGE_WELCOME, textFile));
         startTextBuddy();
